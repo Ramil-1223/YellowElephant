@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      secrets:
+        - username
+        - pass
+        - 1C_version
+    image: yellow_elephant:1.0.0
+    container_name: yellow-elephant-app
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9999:9999"
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/YellowElephant/.env:ro
+      - /backup_base:/backup_base:rw
+      - ./logs:/YellowElephant/logs:rw
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+
+secrets:
+  username:
+    file: ./secrets/username
+  pass:
+    file: ./secrets/pass
+  1C_version:
+    file: ./secrets/1C_version

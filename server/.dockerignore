@@ -1,0 +1,8 @@
+.env
+.gitignore
+env.example
+systemd/
+secrets/
+README.md
+__pycache__
+.git

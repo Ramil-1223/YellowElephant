@@ -1,0 +1,17 @@
+[Unit]
+Description=YellowElephant: CLI Service 1C & Postgres
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=db_manager
+Group=db_manager
+WorkingDirectory=/YellowElephant/server
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/YellowElephant/server/.venv/bin/python3 /YellowElephant/server/main.py
+Restart=always
+RestartSec=5s
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=YellowElephant: CLI Service 1C & Postgres Docker
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=/YellowElephant/server
+ExecStart=/usr/bin/docker compose up
+ExecStop=/usr/bin/docker compose down
+ExecStopPost=/usr/bin/docker rm yellow_elephant_app
+Restart=always
+RestartSec=5s
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
