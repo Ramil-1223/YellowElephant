@@ -2,23 +2,17 @@ import subprocess
 from handler_log.logger import loggerinfo, loggererror
 from fastapi import Response, Body, APIRouter
 from config.get_env import custom_env
-
+from config.schemas import CreateDB
 
 create = APIRouter()
 
 @create.post("/create_base")
-def create_base(
-        description: str = Body(), 
-        port: str = Body(), 
-        cluster_id: str = Body(), 
-        dbname: str = Body()
-    ) -> str:
+def create_base(data: CreateDB = Body()):
 
-
-    if cluster_id == "test":
+    if data.cluster_id == "test":
         cluster_id = custom_env["ID_TEST_CLUSTER"]
         port =  custom_env["PORT_TEST"]
-    elif cluster_id == "demo":
+    elif data.cluster_id == "demo":
         cluster_id = custom_env["ID_DEMO_CLUSTER"]
         port = custom_env["PORT_DEMO"]
 
@@ -30,11 +24,11 @@ def create_base(
             'create',
             f'--cluster={cluster_id}',
             '--create-database',
-            f'--name={dbname}',
-            f'--descr={description}',
+            f'--name={data.dbname}',
+            f'--descr={data.description}',
             '--dbms=PostgreSQL',
             f'--db-server={custom_env["PGHOST"]}',
-            f'--db-name={dbname}',
+            f'--db-name={data.dbname}',
             '--locale=ru',
             f'--db-user={custom_env["PGUSER"]}',
             f'--db-pwd={custom_env["PGPASSWORD"]}',
@@ -45,8 +39,8 @@ def create_base(
         ]
         
         subprocess.run(params, check = True, text = True, capture_output = True)
-        loggerinfo.info(f"База {dbname} успешно создана пользователем {description}.")
-        return Response(content = f"База {dbname} успешно создана!", media_type = "text/plain")
+        loggerinfo.info(f"База {data.dbname} успешно создана пользователем {data.description}.")
+        return Response(content = f"База {data.dbname} успешно создана!", media_type = "text/plain")
     except subprocess.CalledProcessError as err:
         loggererror.error(f"Ошибка выполнения команды: {err.stderr}")
         return Response(content = f"Ошибка выполнения команды, см. подробнее в error.log", media_type = "text/plain")

@@ -6,3 +6,4 @@ __pycache__/
 *.pyd
 *$py.class
 secrets/
+http_paths.py
