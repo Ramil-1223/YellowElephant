@@ -15,6 +15,8 @@ def create_base(data: CreateDB = Body()):
     elif data.cluster_id == "demo":
         cluster_id = custom_env["ID_DEMO_CLUSTER"]
         port = custom_env["PORT_DEMO"]
+    else:
+        raise ValueError("Кластер не найден")
 
     try:
         params = [

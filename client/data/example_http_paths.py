@@ -1,4 +1,5 @@
 http_create = "http://<your_ip>:<port>/create_base"
 http_drop = "http://<your_ip>:<port>/drop_base"
+http_drop1C = "http://<your_ip>:<port>/drop_base_1C"
 http_backup = "http://<your_ip>:<port>/backup_base"
 http_list = "http://<your_ip>:<port>/list_base"

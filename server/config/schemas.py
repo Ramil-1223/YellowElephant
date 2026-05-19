@@ -6,7 +6,11 @@ class CreateDB(BaseModel):
     cluster_id: str
     dbname: str = Field(min_length = 1, max_length = 20, pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
-class BackupDb(BaseModel):
+class BackupDB(BaseModel):
     backup_format: str
     backup_dir: str
+    dbname: str = Field(min_length = 1, max_length = 20, pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+class DropDB1C(BaseModel):
+    cluster: str
     dbname: str = Field(min_length = 1, max_length = 20, pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*$")

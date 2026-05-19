@@ -3,14 +3,14 @@ from datetime import datetime
 from fastapi import APIRouter, Response, Body
 from handler_log.logger import loggerinfo, loggererror
 from config.get_env import custom_env
-from config.schemas import BackupDb
+from config.schemas import BackupDB
 
 today = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 backup = APIRouter()
 
 
 @backup.post("/backup_base")
-def backup_base(data: BackupDb = Body()):
+def backup_base(data: BackupDB = Body()):
     if data.backup_format == "directory":
         form_backup = "d"
         extension = ".backup"
@@ -23,6 +23,8 @@ def backup_base(data: BackupDb = Body()):
     elif data.backup_format == "plain-text":
         form_backup = "p"
         extension = ".sql"
+    else:
+        raise ValueError("Некорректный формат бэкапа")
 
     try:
         params = [

@@ -2,10 +2,11 @@ from enum import StrEnum
 
 class ChoiceList(StrEnum):
     CREATE_BASE = "1. Создать базу"
-    DROP_BASE = "2. Удалить базу"
-    BACKUP_BASE = "3. Сделать резервную копию базы"
-    LS_BASE = "4. Вывести список баз"
-    EXIT = "5. Выйти"
+    DROP_BASE_PG = "2. Удалить базу из СУБД postgres"
+    DROP_BASE_1C = "3. Удалить базу из кластера 1С"
+    BACKUP_BASE = "4. Сделать резервную копию базы"
+    LS_BASE = "5. Вывести список баз в кластере 1С"
+    EXIT = "6. Выйти"
 
 class ChoiceCluster(StrEnum):
     TEST = "test"

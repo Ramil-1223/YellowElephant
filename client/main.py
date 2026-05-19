@@ -35,7 +35,7 @@ def main_route():
                     description = questionary.text(input_description, style = custom_style, qmark = "", validate = lambda text: True if len(text) > 0 and len(text) <= 30 else "Допустимая длина от 1 до 30")
                 ).ask()
                 if 'description' not in create:
-                    questionary.print(keyboard_interrupt, style="bold red"),
+                    questionary.print(keyboard_interrupt, style="bold red")
                     questionary.press_any_key_to_continue(return_to_main_menu).ask()
                     continue
                 params = {'description': create['description'], 'port': 'None', 'cluster_id': create['cluster'], 'dbname': create['create_dbname']}
@@ -44,24 +44,45 @@ def main_route():
                     response = httpx.post(http_create, json = params, timeout = 20.0)
                 questionary.print(response.text, style = "bold yellow")
                 questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()
-            case ChoiceList.DROP_BASE:
+            case ChoiceList.DROP_BASE_PG:
                 drop = questionary.form(
                     drop_dbname = questionary.text(input_name_base, style = custom_style, qmark = "", validate = lambda text: True if len(text) > 0 and len(text) <= 20 else "Допустимая длина от 1 до 20"),
                     accept_drop = questionary.select(message = accept_drop, choices = list(Confirm), style = custom_style, qmark = "", instruction = " ")
                 ).ask()
                 if 'accept_drop' not in drop:
-                    questionary.print(keyboard_interrupt, style = "bold red"),
+                    questionary.print(keyboard_interrupt, style = "bold red")
                     questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()
                     continue
                 elif drop['accept_drop'] == "Y":
                     params = drop['drop_dbname']
                     with Progress(SpinnerColumn(), TextColumn("[bold cyan]{task.description}"), transient = True) as progress:
-                        progress.add_task(description = "Выполняется удаление базы...", total = None)
+                        progress.add_task(description = "Выполняется удаление базы из СУБД postgres...", total = None)
                         response = httpx.post(http_drop, content = params, timeout = 20.0)
                     questionary.print(response.text, style = "bold yellow")
                     questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()
                 else:
-                    questionary.print(cancel_drop, style = "bold red"),
+                    questionary.print(cancel_drop, style = "bold red")
+                    questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()   
+                    continue
+            case ChoiceList.DROP_BASE_1C:
+                drop = questionary.form(
+                    cluster = questionary.select(choice_cluster, choices = list(ChoiceCluster), style = custom_style, qmark = "", instruction = " "),
+                    drop_dbname = questionary.text(input_name_base, style = custom_style, qmark = "", validate = lambda text: True if len(text) > 0 and len(text) <= 20 else "Допустимая длина от 1 до 20"),
+                    accept_drop = questionary.select(message = accept_drop, choices = list(Confirm), style = custom_style, qmark = "", instruction = " ")
+                ).ask()
+                if 'accept_drop' not in drop:
+                    questionary.print(keyboard_interrupt, style = "bold red")
+                    questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()
+                    continue
+                elif drop['accept_drop'] == "Y":
+                    params = {'cluster': drop['cluster'], 'dbname': drop['drop_dbname']}                
+                    with Progress(SpinnerColumn(), TextColumn("[bold cyan]{task.description}"), transient = True) as progress:
+                        progress.add_task(description = "Выполняется удаление базы из кластера 1С...", total = None)
+                        response = httpx.post(http_drop1C, json = params, timeout = 20.0)
+                    questionary.print(response.text, style = "bold yellow")
+                    questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()
+                else:
+                    questionary.print(cancel_drop, style = "bold red")
                     questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()   
                     continue
             case ChoiceList.BACKUP_BASE:
@@ -71,7 +92,7 @@ def main_route():
                     backup_dbname = questionary.text(input_name_base, style = custom_style, qmark = "", instruction = " ", validate = lambda text: True if len(text) > 0 and len(text) <= 20 else "Допустимая длина от 1 до 20")
                 ).ask()
                 if not backup or 'backup_dbname' not in backup:
-                    questionary.print(keyboard_interrupt, style = "bold red"),
+                    questionary.print(keyboard_interrupt, style = "bold red")
                     questionary.press_any_key_to_continue(return_to_main_menu, style = custom_style).ask()
                     continue
                 params = {'backup_format': backup['backup_format'], 'backup_dir': backup['backup_dir'], 'dbname': backup['backup_dbname']}

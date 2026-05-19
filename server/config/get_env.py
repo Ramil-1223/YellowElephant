@@ -3,20 +3,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-user_1c = os.getenv("1C_USER")
-pass_1c = os.getenv("1C_PASSWORD")
-host_1c = os.getenv("1C_HOST")
-rac_path = os.getenv("RAC_PATH")
+user_1c = os.environ["1C_USER"]
+pass_1c = os.environ["1C_PASSWORD"]
+host_1c = os.environ["1C_HOST"]
+rac_path = os.environ["RAC_PATH"]
 
-id_test_cluster = os.getenv("ID_TEST_CLUSTER")
-port_test = os.getenv("PORT_TEST")
-id_demo_cluster = os.getenv("ID_DEMO_CLUSTER")
-port_demo = os.getenv("PORT_DEMO")
+id_test_cluster = os.environ["ID_TEST_CLUSTER"]
+port_test = os.environ["PORT_TEST"]
+id_demo_cluster = os.environ["ID_DEMO_CLUSTER"]
+port_demo = os.environ["PORT_DEMO"]
 
-pg_user = os.getenv("PGUSER")
-pg_pass = os.getenv("PGPASSWORD")
-pg_host = os.getenv("PGHOST")
-pg_port = os.getenv("PGPORT")
+pg_user = os.environ["PGUSER"]
+pg_pass = os.environ["PGPASSWORD"]
+pg_host = os.environ["PGHOST"]
+pg_port = os.environ["PGPORT"]
 
 custom_env = os.environ.copy()
 custom_env["PGPASSWORD"] = pg_pass
