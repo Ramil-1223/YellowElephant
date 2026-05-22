@@ -1,46 +1,44 @@
-import re, subprocess
-from fastapi import APIRouter, Response, Body
-from config.get_env import custom_env
-
+import re
+from fastapi import APIRouter, Response, Body, Depends
+from config.depends import get_env, get_run
 
 ls = APIRouter()
 
+
 @ls.post("/list_base")
-def get_list(cluster: str = Body()):
+def get_list(cluster: str = Body(),
+             run = Depends(get_run),
+             env = Depends(get_env)):
     
     if cluster == "test":
-        cluster_id = custom_env["ID_TEST_CLUSTER"]
-        port =  custom_env["PORT_TEST"]
+        cluster_id = env["ID_TEST_CLUSTER"]
+        port =  env["PORT_TEST"]
     elif cluster == "demo":
-        cluster_id = custom_env["ID_DEMO_CLUSTER"]
-        port = custom_env["PORT_DEMO"]
+        cluster_id = env["ID_DEMO_CLUSTER"]
+        port = env["PORT_DEMO"]
     else:
         raise ValueError("Кластер не найден")
 
     params = [
-        custom_env["RAC_PATH"],
-        f'{custom_env["1C_HOST"]}:{port}',
+        env["RAC_PATH"],
+        f'{env["1C_HOST"]}:{port}',
         'infobase',
         'summary',
         'list',
         f'--cluster={cluster_id}',
-        f'--cluster-user={custom_env["1C_USER"]}',
-        f'--cluster-pwd={custom_env["1C_PASSWORD"]}'
+        f'--cluster-user={env["1C_USER"]}',
+        f'--cluster-pwd={env["1C_PASSWORD"]}'
     ]
 
-    result = subprocess.run(params, text = True, check = True, capture_output = True)
-    return get_parsed_infobases(result.stdout)
-
-
-def get_parsed_infobases(list_base: str):
+    list_base = run(params, text = True, check = True, capture_output = True)
 
     pattern = (
         r"infobase\s*:\s*(?P<infobase>[a-f0-9-]{36})\s*\n"
         r"name\s*:\s*(?P<name>[^\s\n]+)\s*\n"
-        r"descr\s*:\s*.*"
+        r"(?:\s*\n\s*descr\s*:\s*.*)?"
     )
 
-    matches = re.finditer(pattern, list_base, re.MULTILINE)
+    matches = re.finditer(pattern, list_base.stdout, re.MULTILINE)
     infobases = [match.groupdict() for match in matches]
     list_bases = [item['name'] for item in infobases]
     str_base = '\n'.join(list_bases)

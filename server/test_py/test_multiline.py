@@ -24,7 +24,6 @@ def parsed_infobases(db_list):
     pattern = (
         r"infobase\s*:\s*(?P<infobase>[a-f0-9-]{36})\s*\n"
         r"name\s*:\s*(?P<name>[^\s\n]+)\s*\n"
-        # r"descr\s*:\s*.*"
         r"(?:\s*\n\s*descr\s*:\s*.*)?"
     )
 

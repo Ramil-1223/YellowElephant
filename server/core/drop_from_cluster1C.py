@@ -1,6 +1,6 @@
 import subprocess, re
-from fastapi import APIRouter, Response, Body
-from config.get_env import custom_env
+from fastapi import APIRouter, Response, Body, Depends
+from config.depends import get_env, get_run
 from handler_log.logger import loggerinfo, loggererror
 from config.schemas import DropDB1C
 
@@ -8,34 +8,35 @@ from config.schemas import DropDB1C
 drop_1C = APIRouter()
 
 @drop_1C.post("/drop_base_1C")
-def get_list(data: DropDB1C = Body()):
+def drop_base1C(data: DropDB1C = Body(),
+                run = Depends(get_run),
+                env = Depends(get_env)):
     
     if data.cluster == "test":
-        cluster_id = custom_env["ID_TEST_CLUSTER"]
-        port =  custom_env["PORT_TEST"]
+        cluster_id = env["ID_TEST_CLUSTER"]
+        port =  env["PORT_TEST"]
     elif data.cluster == "demo":
-        cluster_id = custom_env["ID_DEMO_CLUSTER"]
-        port = custom_env["PORT_DEMO"]
+        cluster_id = env["ID_DEMO_CLUSTER"]
+        port = env["PORT_DEMO"]
     else:
         raise ValueError("Кластер не найден")
 
     get_list = [
-        custom_env["RAC_PATH"],
-        f'{custom_env["1C_HOST"]}:{port}',
+        env["RAC_PATH"],
+        f'{env["1C_HOST"]}:{port}',
         'infobase',
         'summary',
         'list',
         f'--cluster={cluster_id}',
-        f'--cluster-user={custom_env["1C_USER"]}',
-        f'--cluster-pwd={custom_env["1C_PASSWORD"]}'
+        f'--cluster-user={env["1C_USER"]}',
+        f'--cluster-pwd={env["1C_PASSWORD"]}'
     ]
 
-    list_base = subprocess.run(get_list, text = True, check = True, capture_output = True)
+    list_base = run(get_list, text = True, check = True, capture_output = True)
 
     pattern = (
         r"infobase\s*:\s*(?P<infobase>[a-f0-9-]{36})\s*\n"
         r"name\s*:\s*(?P<name>[^\s\n]+)\s*\n"
-        # r"descr\s*:\s*.*"
         r"(?:\s*\n\s*descr\s*:\s*.*)?"
     )
 
@@ -49,17 +50,17 @@ def get_list(data: DropDB1C = Body()):
 
     try:
         drop_base1C = [
-            custom_env["RAC_PATH"],
-            f'{custom_env["1C_HOST"]}:{port}',
+            env["RAC_PATH"],
+            f'{env["1C_HOST"]}:{port}',
             'infobase',
             'drop',
             f'--cluster={cluster_id}',
             f'--infobase={dict_idbase[data.dbname]}',
-            f'--cluster-user={custom_env["1C_USER"]}',
-            f'--cluster-pwd={custom_env["1C_PASSWORD"]}'
+            f'--cluster-user={env["1C_USER"]}',
+            f'--cluster-pwd={env["1C_PASSWORD"]}'
         ]
 
-        subprocess.run(drop_base1C, check = True, text = True, capture_output = True)
+        run(drop_base1C, check = True, text = True, capture_output = True)
         loggerinfo.info(f"База данных {data.dbname} успешно удалена из кластера {data.cluster}.")
         return Response(content = f"База данных {data.dbname} успешно удалена из кластера {data.cluster}", media_type = "text/plain")
     except subprocess.CalledProcessError as err:
