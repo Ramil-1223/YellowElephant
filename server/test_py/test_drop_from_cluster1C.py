@@ -11,7 +11,7 @@ app = FastAPI()
 app.include_router(drop_1C)
 client = TestClient(app)
 
-@pytest.fixture(scope = 'module')
+@pytest.fixture(autouse = True)
 def cleanup_overrides():
     yield
     app.dependency_overrides.clear()

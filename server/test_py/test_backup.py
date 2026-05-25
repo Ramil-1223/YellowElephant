@@ -1,6 +1,6 @@
-import pytest
-import subprocess
-from unittest.mock import MagicMock, patch
+import pytest, subprocess
+from datetime import datetime
+from unittest.mock import MagicMock
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from config.depends import get_run, get_env
@@ -10,18 +10,18 @@ app = FastAPI()
 app.include_router(backup)
 client = TestClient(app)
 
-@pytest.fixture(scope = 'module')
+@pytest.fixture(autouse = True)
 def cleanup_overrides():
     yield
     app.dependency_overrides.clear()
 
 
-@patch('core.backup.datetime')
-def test_backup_base_directory_format_success(mock_datetime):
-    mock_datetime.now.return_value.strftime.return_value = "2026-05-22_21-58-00"
+# @patch('core.backup.datetime')
+def test_backup_base_directory_format_success():
+    today = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     
     mock_run = MagicMock()
-    mock_run.return_value = MagicMock(returncode=0)
+    mock_run.return_value = MagicMock(returncode = 0)
     fake_env = {"PGPASSWORD": "password"}
     
     app.dependency_overrides[get_run] = lambda: mock_run
@@ -37,14 +37,14 @@ def test_backup_base_directory_format_success(mock_datetime):
     
     assert response.status_code == 200
     assert "успешно выполнена" in response.text
-    assert "/var/backups/prod_db_2026-05-22_21-58-00.backup" in response.text
+    assert f"/var/backups/prod_db_{today}.backup" in response.text
     
     mock_run.assert_called_once_with(
         [
             '/usr/lib/postgresql/16/bin/pg_dump',
             '--no-password',
             '--format=d',
-            '--file=/var/backups/prod_db_2026-05-22_21-58-00.backup',
+            f'--file=/var/backups/prod_db_{today}.backup',
             'prod_db'
         ],
         env = fake_env,
@@ -60,9 +60,9 @@ def test_backup_base_directory_format_success(mock_datetime):
     ("plain-text", "p", ".sql"),
 ])
 
-@patch('core.backup.datetime')
-def test_backup_base_other_formats(mock_datetime, input_format, expected_flag, expected_ext):
-    mock_datetime.now.return_value.strftime.return_value = "2026-05-22_21-58-00"
+
+def test_backup_base_other_formats(input_format, expected_flag, expected_ext):
+    today = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     mock_run = MagicMock()
     
     app.dependency_overrides[get_run] = lambda: mock_run
@@ -80,7 +80,7 @@ def test_backup_base_other_formats(mock_datetime, input_format, expected_flag, e
     
     called_args = mock_run.call_args[0][0]
     assert f'--format={expected_flag}' in called_args
-    assert f'--file=/var/backups/prod_db_2026-05-22_21-58-00{expected_ext}' in called_args
+    assert f'--file=/var/backups/prod_db_{today}{expected_ext}' in called_args
 
 
 def test_backup_base_subprocess_error():

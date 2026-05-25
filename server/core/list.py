@@ -1,6 +1,5 @@
-import re
 from fastapi import APIRouter, Response, Body, Depends
-from config.depends import get_env, get_run
+from config.depends import get_env, get_run, get_str_pattern
 
 ls = APIRouter()
 
@@ -31,16 +30,6 @@ def get_list(cluster: str = Body(),
     ]
 
     list_base = run(params, text = True, check = True, capture_output = True)
-
-    pattern = (
-        r"infobase\s*:\s*(?P<infobase>[a-f0-9-]{36})\s*\n"
-        r"name\s*:\s*(?P<name>[^\s\n]+)\s*\n"
-        r"(?:\s*\n\s*descr\s*:\s*.*)?"
-    )
-
-    matches = re.finditer(pattern, list_base.stdout, re.MULTILINE)
-    infobases = [match.groupdict() for match in matches]
-    list_bases = [item['name'] for item in infobases]
-    str_base = '\n'.join(list_bases)
+    str_base = get_str_pattern(list_base)
 
     return Response(content = str_base, media_type = "text/plain")

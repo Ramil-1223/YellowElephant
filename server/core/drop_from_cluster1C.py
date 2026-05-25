@@ -1,6 +1,6 @@
-import subprocess, re
+import subprocess
 from fastapi import APIRouter, Response, Body, Depends
-from config.depends import get_env, get_run
+from config.depends import get_env, get_run, get_dict_pattern
 from handler_log.logger import loggerinfo, loggererror
 from config.schemas import DropDB1C
 
@@ -33,16 +33,7 @@ def drop_base1C(data: DropDB1C = Body(),
     ]
 
     list_base = run(get_list, text = True, check = True, capture_output = True)
-
-    pattern = (
-        r"infobase\s*:\s*(?P<infobase>[a-f0-9-]{36})\s*\n"
-        r"name\s*:\s*(?P<name>[^\s\n]+)\s*\n"
-        r"(?:\s*\n\s*descr\s*:\s*.*)?"
-    )
-
-    matches = re.finditer(pattern, list_base.stdout, re.MULTILINE)
-    infobases = [match.groupdict() for match in matches]
-    dict_idbase = {item['name']: item['infobase'] for item in infobases}
+    dict_idbase = get_dict_pattern(list_base)
 
     if data.dbname not in dict_idbase:
         loggererror.error(f"Базы {data.dbname} не существует в кластере {data.cluster}!")

@@ -12,7 +12,7 @@ app.include_router(drop)
 client = TestClient(app)
 
 
-@pytest.fixture(scope = 'module')
+@pytest.fixture(autouse = True)
 def cleanup_overrides():
     yield
     app.dependency_overrides.clear()
@@ -33,10 +33,10 @@ def test_drop_base_success():
 
     mock_run.assert_called_once_with(
         ['/usr/lib/postgresql/16/bin/dropdb', '--no-password', 'test_db'],
-        env=fake_env,
-        text=True,
-        check=True,
-        capture_output=True
+        en = fake_env,
+        text = True,
+        check = True,
+        capture_output = True
     )
 
 
