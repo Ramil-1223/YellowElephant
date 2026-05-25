@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+
 class ChoiceList(StrEnum):
     CREATE_BASE = "1. Создать базу"
     DROP_BASE_PG = "2. Удалить базу из СУБД postgres"
@@ -8,9 +9,11 @@ class ChoiceList(StrEnum):
     LS_BASE = "5. Вывести список баз в кластере 1С"
     EXIT = "6. Выйти"
 
+
 class ChoiceCluster(StrEnum):
     TEST = "test"
     DEMO = "demo"
+
 
 class FormatBackup(StrEnum):
     CUSTOM = "custom"
@@ -18,9 +21,11 @@ class FormatBackup(StrEnum):
     TAR = "tar"
     PLAIN = "plain-text"
 
+
 class DirBackup(StrEnum):
     TEST = "/backup_base/backup_test"
     DEMO = "/backup_base/backup_demo"
+
 
 class Confirm(StrEnum):
     YES = "Y"

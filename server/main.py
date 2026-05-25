@@ -14,5 +14,5 @@ app.include_router(ls)
 app.include_router(backup)
 app.include_router(drop_1C)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=9999)
